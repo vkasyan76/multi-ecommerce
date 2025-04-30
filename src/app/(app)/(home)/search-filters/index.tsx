@@ -1,10 +1,11 @@
 // src/app/(app)/(home)/search-filters/index.tsx
 
+import { CustomCategory } from "../types";
 import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
 
 interface Props {
-  data: any; // ⚠️ Temporary "any" type (will fix later)
+  data: CustomCategory[]; // ⚠️ Temporary "any" type (will fix later)
 }
 
 export const SearchFilters = ({ data }: Props) => {
