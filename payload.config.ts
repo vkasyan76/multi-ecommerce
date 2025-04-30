@@ -3,9 +3,9 @@ import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { payloadCloudPlugin } from "@payloadcms/payload-cloud";
 import { buildConfig } from "payload";
-import { Media } from "./src/collections/media";
-import { Users } from "./src/collections/users";
-import { Categories } from "./src/collections/categories";
+import { Media } from "./src/collections/media.ts";
+import { Users } from "./src/collections/users.ts";
+import { Categories } from "./src/collections/categories.ts";
 
 import path from "path";
 
