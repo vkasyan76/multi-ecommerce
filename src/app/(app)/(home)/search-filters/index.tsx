@@ -5,14 +5,19 @@ import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
 
 interface Props {
-  data: CustomCategory[]; // ⚠️ Temporary "any" type (will fix later)
+  data: CustomCategory[];
 }
 
 export const SearchFilters = ({ data }: Props) => {
   return (
     <div className="px-4 lg:px-12 py-8 border-b flex flex-col gap-4 w-full">
-      <SearchInput disabled={false} />
-      <Categories data={data} />
+      {/* Pass data to Search Input for showing the categoriesSiedbar  */}
+      <SearchInput data={data} />
+      {/* Hide Categories on Mobile */}
+      <div className="hidden lg:block">
+        <Categories data={data} />
+      </div>
+
       {/* {JSON.stringify(data, null, 2)} */}
     </div>
   );
