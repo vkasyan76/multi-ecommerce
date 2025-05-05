@@ -9,7 +9,7 @@ import { ListFilterIcon } from "lucide-react";
 import { CategoriesSidebar } from "./categories-sidebar";
 
 interface Props {
-  data: CustomCategory[]; // ⚠️ Temporary "any" type (will fix later)
+  data: CustomCategory[]; //
 }
 
 export const Categories = ({ data }: Props) => {
@@ -28,7 +28,7 @@ export const Categories = ({ data }: Props) => {
   const activeCategoryIndex = data.findIndex(
     (category) => category.slug === activeCategory
   );
-  const isActiveCategoryHiddeden =
+  const isActiveCategoryHidden =
     activeCategoryIndex >= visibleCount && activeCategoryIndex !== -1;
 
   // 1.	Check if the container and data exist.
@@ -130,7 +130,7 @@ export const Categories = ({ data }: Props) => {
           <Button
             className={cn(
               "h-11 px-4 bg-transparent border-transparent rounded-full hover:bg-white hover:border-primary text-black",
-              isActiveCategoryHiddeden &&
+              isActiveCategoryHidden &&
                 !isAnyHovered &&
                 "bg-white border-primary"
             )}
