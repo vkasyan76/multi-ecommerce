@@ -1,19 +1,41 @@
-import { getQueryClient, trpc } from "@/trpc/server";
+//  Fetching in trpc client component (non async):
 
-export default async function Home() {
-  const queryClient = getQueryClient();
-  const categories = await queryClient.fetchQuery(
-    trpc.categories.getMany.queryOptions()
-  );
+"use client";
+
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
+
+export default function Home() {
+  const trpc = useTRPC();
+  const categories = useQuery(trpc.categories.getMany.queryOptions());
 
   return (
     <div>
-      {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
-      {/* Home Page */}
-      {JSON.stringify(categories, null, 2)}
+      <p>is loading: {`${categories.isLoading}`}</p>
+      {/* you need categories.data */}
+      {JSON.stringify(categories.data, null, 2)}
     </div>
   );
 }
+
+// Fetching in trpc server component:
+
+// import { getQueryClient, trpc } from "@/trpc/server";
+
+// export default async function Home() {
+//   const queryClient = getQueryClient();
+//   const categories = await queryClient.fetchQuery(
+//     trpc.categories.getMany.queryOptions()
+//   );
+
+//   return (
+//     <div>
+//       {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+//       {/* Home Page */}
+//       {JSON.stringify(categories, null, 2)}
+//     </div>
+//   );
+// }
 
 // Earlier version to twick the styling:
 
