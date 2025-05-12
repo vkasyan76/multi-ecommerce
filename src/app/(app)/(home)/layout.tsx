@@ -7,7 +7,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import { Footer } from "./footer";
 import { Navbar } from "./navbar";
-import { SearchFilters } from "./search-filters";
+import { SearchFilters, SearchFiltersSkeleton } from "./search-filters";
 // import { Category } from "../../../../payload-types";
 // import { CustomCategory } from "./types";
 
@@ -50,7 +50,10 @@ const Layout = async ({ children }: Props) => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={<p>Loading...</p>}>
+        <Suspense fallback={<SearchFiltersSkeleton />}>
+          {/* <SearchFilters data={formattedData} /> */}
+          {/* <SearchFilters data={[]} /> */}
+          {/* <SearchFilters data={[]} /> */}
           <SearchFilters />
         </Suspense>
       </HydrationBoundary>
