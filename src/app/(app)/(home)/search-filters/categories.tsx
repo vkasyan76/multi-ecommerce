@@ -1,15 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CustomCategory } from "../types";
+// import { CustomCategory } from "../types";
+import { CategoriesGetManyOutput } from "@/modules/categories/types";
 import { CategoryDropdown } from "./category-dropdown";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ListFilterIcon } from "lucide-react";
 import { CategoriesSidebar } from "./categories-sidebar";
 
+// interface Props {
+//   data: CustomCategory[]; //
+// }
+
+// After TRCP introduction CategoryDropdown and SubcategoryMenu still expect a very specific shape. We define it in src\modules\categories\types.ts: CategoriesGetManyOutput
+
 interface Props {
-  data: CustomCategory[]; //
+  data: CategoriesGetManyOutput; //
 }
 
 export const Categories = ({ data }: Props) => {
@@ -87,7 +94,7 @@ export const Categories = ({ data }: Props) => {
       <CategoriesSidebar
         open={isSidebarOpen}
         onOpenChange={setIsSidebarOpen} // passed as OnClick in the ViewAll button
-        data={data}
+        // data={data}
       />
 
       {/* Hidden div to measure all items */}

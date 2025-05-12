@@ -3,17 +3,21 @@
 "use client";
 
 import { useTRPC } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const trpc = useTRPC();
-  const categories = useQuery(trpc.categories.getMany.queryOptions());
+  // const categories = useQuery(trpc.categories.getMany.queryOptions());
+  // to avoid hydration error, caused by mismatch of loading state b/w server and client:
+  const { data: categories } = useSuspenseQuery(
+    trpc.categories.getMany.queryOptions()
+  );
 
   return (
     <div>
-      <p>is loading: {`${categories.isLoading}`}</p>
+      {/* <p>is loading: {`${categories.isLoading}`}</p> */}
       {/* you need categories.data */}
-      {JSON.stringify(categories.data, null, 2)}
+      {JSON.stringify(categories, null, 2)}
     </div>
   );
 }
