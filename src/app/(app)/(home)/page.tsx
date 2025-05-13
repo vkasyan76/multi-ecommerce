@@ -1,26 +1,40 @@
-//  Fetching in trpc client component (non async):
+//  Fetching auth:
 
 "use client";
 
 import { useTRPC } from "@/trpc/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+// import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const trpc = useTRPC();
-  // const categories = useQuery(trpc.categories.getMany.queryOptions());
-  // to avoid hydration error, caused by mismatch of loading state b/w server and client:
-  const { data: categories } = useSuspenseQuery(
-    trpc.categories.getMany.queryOptions()
-  );
 
-  return (
-    <div>
-      {/* <p>is loading: {`${categories.isLoading}`}</p> */}
-      {/* you need categories.data */}
-      {JSON.stringify(categories, null, 2)}
-    </div>
-  );
+  const { data } = useQuery(trpc.auth.session.queryOptions());
+
+  return <div>{JSON.stringify(data?.user, null, 2)}</div>;
 }
+
+// Fetching with useSusspense component:  //  Fetching in trpc client component (non async):
+
+// import { useTRPC } from "@/trpc/client";
+// import { useSuspenseQuery } from "@tanstack/react-query";
+
+// export default function Home() {
+//   const trpc = useTRPC();
+//   // const categories = useQuery(trpc.categories.getMany.queryOptions());
+//   // to avoid hydration error, caused by mismatch of loading state b/w server and client:
+//   const { data: categories } = useSuspenseQuery(
+//     trpc.categories.getMany.queryOptions()
+//   );
+
+//   return (
+//     <div>
+//       {/* <p>is loading: {`${categories.isLoading}`}</p> */}
+//       {/* you need categories.data */}
+//       {JSON.stringify(categories, null, 2)}
+//     </div>
+//   );
+// }
 
 // Fetching in trpc server component:
 

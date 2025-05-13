@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CustomCategory } from "../types";
+// import { CustomCategory } from "../types";
 import { CategoriesGetManyOutput } from "@/modules/categories/types";
 
 interface Props {
