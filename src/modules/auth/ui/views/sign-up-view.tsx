@@ -18,6 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { registerSchema } from "../../schemas";
 import { cn } from "@/lib/utils";
+// submit the form:
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+// toast message
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,6 +31,20 @@ const poppins = Poppins({
 });
 
 export const SignUpView = () => {
+  const router = useRouter();
+
+  const trpc = useTRPC();
+  const register = useMutation(
+    trpc.auth.register.mutationOptions({
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSuccess: () => {
+        router.push("/");
+      },
+    })
+  );
+
   const form = useForm<z.infer<typeof registerSchema>>({
     // show errors as you type:
     mode: "all",
@@ -37,7 +57,8 @@ export const SignUpView = () => {
   });
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
+    // console.log(values);
+    register.mutate(values);
   };
 
   // actively observe username & errors:
@@ -122,6 +143,7 @@ export const SignUpView = () => {
               )}
             />
             <Button
+              disabled={register.isPending}
               type="submit"
               size="lg"
               variant="elevated"
