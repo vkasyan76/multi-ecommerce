@@ -1,9 +1,9 @@
 import { headers as getHeaders, cookies as getCookies } from "next/headers";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
-import { z } from "zod";
+// import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { AUTH_COOKIE } from "../constants";
-import { registerSchema } from "../schemas";
+import { registerSchema, loginSchema } from "../schemas";
 
 export const authRouter = createTRPCRouter({
   session: baseProcedure.query(async ({ ctx }) => {
@@ -49,6 +49,26 @@ export const authRouter = createTRPCRouter({
       // })
     )
     .mutation(async ({ ctx, input }) => {
+      // find if the name was already used:
+      const existingData = await ctx.db.find({
+        collection: "users",
+        limit: 1,
+        where: {
+          username: {
+            equals: input.username,
+          },
+        },
+      });
+
+      const existingUser = existingData.docs[0];
+
+      if (existingUser) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Username already taken",
+        });
+      }
+
       await ctx.db.create({
         collection: "users",
         data: {
@@ -89,10 +109,11 @@ export const authRouter = createTRPCRouter({
   // Login Procedure:
   login: baseProcedure
     .input(
-      z.object({
-        email: z.string().email(),
-        password: z.string().min(6),
-      })
+      // z.object({
+      //   email: z.string().email(),
+      //   password: z.string().min(6),
+      // })
+      loginSchema
     )
     .mutation(async ({ ctx, input }) => {
       const data = await ctx.db.login({
