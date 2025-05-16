@@ -23,6 +23,7 @@ export default buildConfig({
   },
   editor: lexicalEditor(),
   collections: [Users, Media, Categories],
+  // cookiePrefix: "funroad",  // optional: if we want to change the cookie prefix
   plugins: [payloadCloudPlugin()],
   secret: process.env.PAYLOAD_SECRET || "",
   db: mongooseAdapter({

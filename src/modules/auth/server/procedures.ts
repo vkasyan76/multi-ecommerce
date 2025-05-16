@@ -4,6 +4,7 @@ import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { AUTH_COOKIE } from "../constants";
 import { registerSchema, loginSchema } from "../schemas";
+import { generateAuthCookie } from "../utils";
 
 export const authRouter = createTRPCRouter({
   session: baseProcedure.query(async ({ ctx }) => {
@@ -92,17 +93,21 @@ export const authRouter = createTRPCRouter({
           message: "Invalid email or password",
         });
       }
-      const cookies = await getCookies();
-      cookies.set({
-        name: AUTH_COOKIE,
+      // const cookies = await getCookies();
+      // cookies.set({
+      //   name: AUTH_COOKIE,
+      //   value: data.token,
+      //   httpOnly: true,
+      //   path: "/",
+      //   // TODO: ensure cross-domain coookie sharing
+      //   // sameSite: "none",
+      //   // domain: ""
+      //   // "funroad.com" // initial cookie
+      //   // antonio.funroad.com // cookie does not exist here
+      // });
+      await generateAuthCookie({
+        prefix: ctx.db.config.cookiePrefix,
         value: data.token,
-        httpOnly: true,
-        path: "/",
-        // TODO: ensure cross-domain coookie sharing
-        // sameSite: "none",
-        // domain: ""
-        // "funroad.com" // initial cookie
-        // antonio.funroad.com // cookie does not exist here
       });
       return data;
     }),
@@ -129,17 +134,22 @@ export const authRouter = createTRPCRouter({
           message: "Invalid email or password",
         });
       }
-      const cookies = await getCookies();
-      cookies.set({
-        name: AUTH_COOKIE,
+      // const cookies = await getCookies();
+      // cookies.set({
+      //   // name: AUTH_COOKIE,
+      //   name: `${ctx.db.config.cookiePrefix}-token`, // payload default cookie name
+      //   value: data.token,
+      //   httpOnly: true,
+      //   path: "/",
+      //   // TODO: ensure cross-domain coookie sharing
+      //   // sameSite: "none",
+      //   // domain: ""
+      //   // "funroad.com" // initial cookie
+      //   // antonio.funroad.com // cookie does not exist here
+      // });
+      await generateAuthCookie({
+        prefix: ctx.db.config.cookiePrefix,
         value: data.token,
-        httpOnly: true,
-        path: "/",
-        // TODO: ensure cross-domain coookie sharing
-        // sameSite: "none",
-        // domain: ""
-        // "funroad.com" // initial cookie
-        // antonio.funroad.com // cookie does not exist here
       });
       return data;
     }),

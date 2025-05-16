@@ -19,7 +19,7 @@ import { loginSchema } from "../../schemas";
 import { cn } from "@/lib/utils";
 // submit the form:
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 // toast message
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -33,17 +33,34 @@ export const SignInView = () => {
   const router = useRouter();
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const login = useMutation(
     trpc.auth.login.mutationOptions({
+      // alternative method - using payload mutation function (w/o trpc.auth.login.mutationOptions):
+      // mutationFn: async (values: z.infer<typeof loginSchema>) => {
+      //   const response = await fetch("/api/users/login", {
+      //     method: "POST",
+      //     body: JSON.stringify(values),
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //   });
+      //   if (!response.ok) {
+      //     const error = await response.json();
+      //     throw new Error(error.message || "Login failed");
+      //   }
+      //   return response.json();
+      // },
+
       onError: (error) => {
         toast.error(error.message);
       },
-      onSuccess: () => {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.auth.session.queryFilter());
         router.push("/");
       },
     })
   );
-
   const form = useForm<z.infer<typeof loginSchema>>({
     // show errors as you type:
     mode: "all",
