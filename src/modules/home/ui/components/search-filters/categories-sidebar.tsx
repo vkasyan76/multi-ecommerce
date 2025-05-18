@@ -57,8 +57,10 @@ export const CategoriesSidebar = ({ open, onOpenChange }: Props) => {
     } else {
       // this is a leaf category (no subcategories)
       if (parentCategories && selectedCategory) {
-        // This is a subcategory - navigate to /category/subcategory
-        router.push(`${selectedCategory.slug}/${category.slug}`);
+        // This is a subcategory - navigate to /category/subcategory.
+        // Change the navigation to always use absolute paths by adding a leading slash in the router.push calls for subcategories.
+        // Without a leading slash, router.push treats the URL as relative to the current path. With a leading slash, router.push('/new-path') treats it as an absolute path from the root.
+        router.push(`/${selectedCategory.slug}/${category.slug}`);
       } else {
         //   This is a main category - navigate to /category
         if (category.slug === "all") {
