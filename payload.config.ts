@@ -6,6 +6,7 @@ import { buildConfig } from "payload";
 import { Media } from "./src/collections/media.ts";
 import { Users } from "./src/collections/users.ts";
 import { Categories } from "./src/collections/categories.ts";
+import { Products } from "./src/collections/products.ts";
 
 import path from "path";
 
@@ -22,7 +23,7 @@ export default buildConfig({
     },
   },
   editor: lexicalEditor(),
-  collections: [Users, Media, Categories],
+  collections: [Users, Media, Categories, Products],
   // cookiePrefix: "funroad",  // optional: if we want to change the cookie prefix
   plugins: [payloadCloudPlugin()],
   secret: process.env.PAYLOAD_SECRET || "",

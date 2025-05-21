@@ -2,6 +2,9 @@ import type { CollectionConfig } from "payload";
 
 export const Categories: CollectionConfig = {
   slug: "categories",
+  admin: {
+    useAsTitle: "name", // This will enusre that category names are shown, not the IDs
+  },
   fields: [
     {
       name: "name",
