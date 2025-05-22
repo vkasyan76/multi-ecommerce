@@ -29,7 +29,7 @@ export const productsRouter = createTRPCRouter({
           },
         });
 
-        console.log(JSON.stringify(categoriesData, null, 2));
+        // console.log(JSON.stringify(categoriesData, null, 2));
 
         const formattedData = categoriesData.docs.map((doc) => ({
           ...doc,
@@ -52,15 +52,15 @@ export const productsRouter = createTRPCRouter({
               (subcategory) => subcategory.slug
             )
           );
+
+          where["category.slug"] = {
+            in: [parentCategory.slug, ...subcategoriesSlugs],
+          };
         }
 
         // where["category.slug"] = {
         //   equals: parentCategory.slug,
         // };
-
-        where["category.slug"] = {
-          in: [parentCategory.slug, ...subcategoriesSlugs],
-        };
 
         // if we dont load category data / dont care about subcategories - simple fetch:
         // where["category.slug"] = {
