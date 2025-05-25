@@ -8,11 +8,28 @@ export const productsRouter = createTRPCRouter({
     .input(
       z.object({
         category: z.string().nullable().optional(),
+        minPrice: z.string().nullable().optional(),
+        maxPrice: z.string().nullable().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
       // prepare a "where" object (by default empty):
       const where: Where = {};
+
+      // If both min and max are set: Filter prices between min and max (inclusive).
+      // If only min is set: Filter for prices greater than or equal to min.
+      // If only max is set:Filter for prices less than or equal to max.
+
+      if (input.minPrice && input.maxPrice) {
+        where.price = {
+          greater_than_equal: input.minPrice,
+          less_than_equal: input.maxPrice,
+        };
+      } else if (input.minPrice) {
+        where.price = { greater_than_equal: input.minPrice };
+      } else if (input.maxPrice) {
+        where.price = { less_than_equal: input.maxPrice };
+      }
 
       if (input.category) {
         // if we want to check that the category exists, we can do it like this:
