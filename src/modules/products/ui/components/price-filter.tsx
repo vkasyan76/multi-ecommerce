@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -9,13 +9,25 @@ interface Props {
   onMaxPriceChange: (value: string) => void;
 }
 
+// Helper functions:
+const getLocale = (): string => {
+  if (typeof window !== "undefined" && navigator?.language) {
+    return navigator.language;
+  }
+  return "en-US";
+};
+
+const getDecimalSeparator = (locale: string): string =>
+  (1.1).toLocaleString(locale).substring(1, 2);
+
 export const formatAsCurrency = (
   value: string,
-  locale = navigator.language,
+  locale = getLocale(),
   currency = "USD"
 ) => {
-  // Determine the decimal separator for the current locale
-  const decimalSeparator = (1.1).toLocaleString(locale).substring(1, 2);
+  // Determine the decimal separator for the current localce
+
+  const decimalSeparator = getDecimalSeparator(locale);
 
   // Determine the thousands separator by formatting a bigger number
   const thousandSeparator = (1000).toLocaleString(locale).replace(/1|0/g, "");
@@ -56,33 +68,27 @@ export const PriceFilter = ({
   onMinPriceChange,
   onMaxPriceChange,
 }: Props) => {
-  const normalizePriceInput = (input: string, locale: string): string => {
-    // Determine the decimal separator for the current locale
-    const decimalSeparator = (1.1).toLocaleString(locale).substring(1, 2);
+  const locale = useMemo(() => getLocale(), []);
+  // Determine the decimal separator for the current locale
 
-    // Remove all chars except digits and decimal separator
-    let numericValue = input.replace(
-      new RegExp(`[^0-9${decimalSeparator}]`, "g"),
-      ""
-    );
+  const priceRegex = useMemo(() => /[^0-9.,]/g, []);
 
-    // Normalize decimal separator to dot for consistency
-    if (decimalSeparator !== ".") {
-      numericValue = numericValue.replace(decimalSeparator, ".");
-    }
+  const normalizePriceInput = (input: string): string => {
+    let numericValue = input.replace(priceRegex, "");
+
+    // Replace all commas with dots (so 405,50 becomes 405.50)
+    numericValue = numericValue.replace(/,/g, ".");
 
     return numericValue;
   };
 
   const handleMinPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const locale = navigator.language;
-    const cleanedValue = normalizePriceInput(e.target.value, locale);
+    const cleanedValue = normalizePriceInput(e.target.value);
     onMinPriceChange(cleanedValue);
   };
 
   const handleMaxPriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const locale = navigator.language;
-    const cleanedValue = normalizePriceInput(e.target.value, locale);
+    const cleanedValue = normalizePriceInput(e.target.value);
     onMaxPriceChange(cleanedValue);
   };
 
@@ -93,7 +99,7 @@ export const PriceFilter = ({
         <Input
           type="text"
           placeholder="$0"
-          value={minPrice ? formatAsCurrency(minPrice) : ""}
+          value={minPrice ? formatAsCurrency(minPrice, locale) : ""}
           onChange={handleMinPriceChange}
         />
       </div>
@@ -103,7 +109,7 @@ export const PriceFilter = ({
         <Input
           type="text"
           placeholder="∞" // Infinity sign
-          value={maxPrice ? formatAsCurrency(maxPrice) : ""}
+          value={maxPrice ? formatAsCurrency(maxPrice, locale) : ""}
           onChange={handleMaxPriceChange}
         />
       </div>
