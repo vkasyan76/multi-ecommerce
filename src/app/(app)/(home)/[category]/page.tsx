@@ -1,4 +1,6 @@
 // import { caller } from "@/trpc/server";
+import type { SearchParams } from "nuqs/server";
+
 import {
   ProductList,
   ProductListSkeleton,
@@ -8,19 +10,25 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { Suspense } from "react";
 import { ProductFilters } from "@/modules/products/ui/components/product-filters";
+import { loadProductFilters } from "@/modules/products/hooks/use-product-filters";
 
 interface Props {
   // Next.js asynchronously provides params
   params: Promise<{ category: string }>;
+  searchParams: Promise<SearchParams>;
 }
 
-const Page = async ({ params }: Props) => {
+const Page = async ({ params, searchParams }: Props) => {
   const { category } = await params;
+
+  const filters = await loadProductFilters(searchParams);
+
+  console.log(JSON.stringify(filters, null, 2), "THIS IS FROM RCS");
 
   // const products = await caller.products.getMany();
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(
-    trpc.products.getMany.queryOptions({ category })
+    trpc.products.getMany.queryOptions({ category, ...filters })
   );
 
   return (
