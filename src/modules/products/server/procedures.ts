@@ -1,7 +1,8 @@
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { Category } from "@payload-types";
-import type { Where } from "payload";
+import type { Sort, Where } from "payload";
 import { z } from "zod";
+import { sortValues } from "../hooks/search-params";
 
 export const productsRouter = createTRPCRouter({
   getMany: baseProcedure
@@ -10,11 +11,29 @@ export const productsRouter = createTRPCRouter({
         category: z.string().nullable().optional(),
         minPrice: z.string().nullable().optional(),
         maxPrice: z.string().nullable().optional(),
+        tags: z.array(z.string()).nullable().optional(),
+        sort: z.enum(sortValues).nullable().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
       // prepare a "where" object (by default empty):
       const where: Where = {};
+
+      let sort: Sort = "-createdAt"; // default sort by createdAt DESC
+
+      // TODO: revisit the sorting filters
+
+      if (input.sort === "curated") {
+        sort = "-createdAt"; // for test purpose sort by name
+      }
+
+      if (input.sort === "hot_and_new") {
+        sort = "+createdAt"; // for test purpose sort ASSC
+      }
+
+      if (input.sort === "trending") {
+        sort = "+createdAt"; // default sort by createdAt DESC
+      }
 
       // If both min and max are set: Filter prices between min and max (inclusive).
       // If only min is set: Filter for prices greater than or equal to min.
@@ -85,10 +104,17 @@ export const productsRouter = createTRPCRouter({
         // };
       }
 
+      if (input.tags && input.tags.length > 0) {
+        where["tags.name"] = {
+          in: input.tags,
+        };
+      }
+
       const data = await ctx.db.find({
         collection: "products",
         depth: 1, // populate "category" and "image"
         where,
+        sort,
       });
 
       // Artificial delay for development/testing:
