@@ -11,6 +11,7 @@ import { Products } from "./src/collections/products.ts";
 import path from "path";
 
 import { fileURLToPath } from "url";
+import { Tags } from "@/collections/tags.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -23,7 +24,7 @@ export default buildConfig({
     },
   },
   editor: lexicalEditor(),
-  collections: [Users, Media, Categories, Products],
+  collections: [Users, Media, Categories, Products, Tags],
   // cookiePrefix: "funroad",  // optional: if we want to change the cookie prefix
   plugins: [payloadCloudPlugin()],
   secret: process.env.PAYLOAD_SECRET || "",
