@@ -1,13 +1,16 @@
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
-import { Category } from "@payload-types";
+import { Category, Media } from "@payload-types";
 import type { Sort, Where } from "payload";
 import { z } from "zod";
 import { sortValues } from "../hooks/search-params";
+import { DEFAULT_LIMIT } from "@/constants";
 
 export const productsRouter = createTRPCRouter({
   getMany: baseProcedure
     .input(
       z.object({
+        cursor: z.number().default(1),
+        limit: z.number().default(DEFAULT_LIMIT),
         category: z.string().nullable().optional(),
         minPrice: z.string().nullable().optional(),
         maxPrice: z.string().nullable().optional(),
@@ -19,7 +22,7 @@ export const productsRouter = createTRPCRouter({
       // prepare a "where" object (by default empty):
       const where: Where = {};
 
-      let sort: Sort = "-createdAt"; // default sort by createdAt DESC
+      let sort: Sort = "-createdAt"; // default sort by createdAt DESC newest created
 
       // TODO: revisit the sorting filters
 
@@ -115,12 +118,23 @@ export const productsRouter = createTRPCRouter({
         depth: 1, // populate "category" and "image"
         where,
         sort,
+        page: input.cursor,
+        limit: input.limit,
       });
 
       // Artificial delay for development/testing:
       // await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      return data;
+      // return data;
+      // to modify getMany method, so that it properly assigns the type of image.
+
+      return {
+        ...data,
+        docs: data.docs.map((doc) => ({
+          ...doc,
+          image: doc.image as Media | null, // ensure image is of type Media or null
+        })),
+      };
     }),
 });
 
