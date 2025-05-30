@@ -3,6 +3,7 @@ import { getQueryClient, trpc } from "@/trpc/server";
 import { ProductListView } from "@/modules/products/ui/components/views/product-list-view";
 import { SearchParams } from "nuqs/server";
 import { loadProductFilters } from "@/modules/products/hooks/search-params";
+import { DEFAULT_LIMIT } from "@/constants";
 
 interface Props {
   // Next.js asynchronously provides params
@@ -15,8 +16,12 @@ const Page = async ({ params, searchParams }: Props) => {
 
   const filters = await loadProductFilters(searchParams);
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.products.getMany.queryOptions({ category: subcategory, ...filters })
+  void queryClient.prefetchInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions({
+      category: subcategory,
+      ...filters,
+      limit: DEFAULT_LIMIT,
+    })
   );
 
   return (

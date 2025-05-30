@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
-import { useDropDownPosition } from "./use-dropdown-position";
+// import { useDropDownPosition } from "./use-dropdown-position";
 import { SubcategoryMenu } from "./subcategory-menu";
 // import { CustomCategory } from "../types";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export const CategoryDropdown = ({
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { getDropDownPosition } = useDropDownPosition(dropdownRef);
+  // const { getDropDownPosition } = useDropDownPosition(dropdownRef);
 
   const onMouseEnter = () => {
     if (category.subcategories) {
@@ -35,9 +35,11 @@ export const CategoryDropdown = ({
     setIsOpen(false);
   };
 
-  const dropdownPosition = getDropDownPosition();
+  // Fix: Problem – dropdown position is messed up on scroll  - simply remove:
+  // const dropdownPosition = getDropDownPosition();
 
   // TODO: Potentially improve mobile
+
   // const toggleDropdown = () => {
   //   if (category.subcategories?.docs?.length) {
   //     setIsOpen(!isOpen);
@@ -78,7 +80,7 @@ export const CategoryDropdown = ({
       <SubcategoryMenu
         category={category}
         isOpen={isOpen}
-        position={dropdownPosition}
+        // position={dropdownPosition}
       />
     </div>
   );

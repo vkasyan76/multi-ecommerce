@@ -6,13 +6,13 @@ interface Props {
   // category: CustomCategory;
   category: CategoriesGetManyOutput[1];
   isOpen: boolean;
-  position: {
-    top: number;
-    left: number;
-  };
+  // position: {
+  //   top: number;
+  //   left: number;
+  // };
 }
 
-export const SubcategoryMenu = ({ category, isOpen, position }: Props) => {
+export const SubcategoryMenu = ({ category, isOpen }: Props) => {
   if (
     !isOpen ||
     !category.subcategories ||
@@ -25,10 +25,16 @@ export const SubcategoryMenu = ({ category, isOpen, position }: Props) => {
 
   return (
     <div
-      className="fixed z-100"
+      // fix: Problem – dropdown position is messed up on scroll - remove the position prop and change to absolute
+      // className="fixed z-100"
+      className="absolute z-100"
+      // style={{
+      //   top: position.top,
+      //   left: position.left,
+      // }}
       style={{
-        top: position.top,
-        left: position.left,
+        top: "100%",
+        left: 0,
       }}
     >
       {/* Invisible bridge to maintain hover */}

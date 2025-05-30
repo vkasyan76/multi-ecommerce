@@ -3,6 +3,7 @@ import { loadProductFilters } from "@/modules/products/hooks/search-params";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { ProductListView } from "@/modules/products/ui/components/views/product-list-view";
+import { DEFAULT_LIMIT } from "@/constants";
 interface Props {
   // Next.js asynchronously provides params
   params: Promise<{ category: string }>;
@@ -18,8 +19,12 @@ const Page = async ({ params, searchParams }: Props) => {
 
   // const products = await caller.products.getMany();
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.products.getMany.queryOptions({ category, ...filters })
+  void queryClient.prefetchInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions({
+      category,
+      ...filters,
+      limit: DEFAULT_LIMIT,
+    })
   );
 
   return (
