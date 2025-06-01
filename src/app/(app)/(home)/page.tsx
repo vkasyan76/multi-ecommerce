@@ -1,18 +1,54 @@
-//  Fetching auth:
-
-"use client";
-
-import { useTRPC } from "@/trpc/client";
-// import { useSuspenseQuery } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
-
-export default function Home() {
-  const trpc = useTRPC();
-
-  const { data } = useQuery(trpc.auth.session.queryOptions());
-
-  return <div>{JSON.stringify(data?.user, null, 2)}</div>;
+import type { SearchParams } from "nuqs/server";
+import { loadProductFilters } from "@/modules/products/hooks/search-params";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getQueryClient, trpc } from "@/trpc/server";
+import { ProductListView } from "@/modules/products/ui/components/views/product-list-view";
+import { DEFAULT_LIMIT } from "@/constants";
+interface Props {
+  // Next.js asynchronously provides params
+  // params: Promise<{ category: string }>;
+  searchParams: Promise<SearchParams>;
 }
+
+const Page = async ({ searchParams }: Props) => {
+  // const { category } = await params;
+
+  const filters = await loadProductFilters(searchParams);
+
+  // console.log(JSON.stringify(filters, null, 2), "THIS IS FROM RCS");
+
+  // const products = await caller.products.getMany();
+  const queryClient = getQueryClient();
+  void queryClient.prefetchInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions({
+      // category,
+      ...filters,
+      limit: DEFAULT_LIMIT,
+    })
+  );
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ProductListView />
+    </HydrationBoundary>
+  );
+};
+
+export default Page;
+
+// Feetching Auth before chapter 15:
+
+// import { useTRPC } from "@/trpc/client";
+// // import { useSuspenseQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
+
+// export default function Home() {
+//   const trpc = useTRPC();
+
+//   const { data } = useQuery(trpc.auth.session.queryOptions());
+
+//   return <div>{JSON.stringify(data?.user, null, 2)}</div>;
+// }
 
 // Fetching with useSusspense component:  //  Fetching in trpc client component (non async):
 
