@@ -144,6 +144,32 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const seed = async () => {
   const payload = await getPayload({ config });
 
+  // Create admin tenant:
+  const adminTenant = await payload.create({
+    collection: "tenants",
+    data: {
+      name: "admin",
+      slug: "admin",
+      stripeAccountId: "admin",
+    },
+  });
+
+  // Create admin user & add tenant admin tenant:
+  await payload.create({
+    collection: "users",
+    data: {
+      email: "admin@demo.com",
+      password: "admin123",
+      roles: ["super-admin"],
+      username: "admin",
+      tenants: [
+        {
+          tenant: adminTenant.id,
+        },
+      ],
+    },
+  });
+
   await delay(2000); // 🔧 avoid MongoDB catalog timing error
 
   for (const category of categories) {
