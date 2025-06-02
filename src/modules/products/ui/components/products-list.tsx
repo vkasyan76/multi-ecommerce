@@ -13,9 +13,10 @@ import { InboxIcon } from "lucide-react";
 
 interface Props {
   category?: string;
+  tenantSlug?: string;
 }
 
-export const ProductList = ({ category }: Props) => {
+export const ProductList = ({ category, tenantSlug }: Props) => {
   const [filters] = useProductFilters();
 
   const trpc = useTRPC();
@@ -34,6 +35,7 @@ export const ProductList = ({ category }: Props) => {
         {
           ...filters,
           category,
+          tenantSlug,
           limit: DEFAULT_LIMIT,
         },
         {
@@ -74,8 +76,8 @@ export const ProductList = ({ category }: Props) => {
               id={product.id}
               name={product.name}
               imageUrl={product.image?.url || null}
-              authorUsername="anonymous"
-              authorImageUrl={undefined}
+              authorUsername={product.tenant?.name}
+              authorImageUrl={product.tenant?.image?.url}
               reviewRating={3}
               reviewCount={5}
               price={product.price}
