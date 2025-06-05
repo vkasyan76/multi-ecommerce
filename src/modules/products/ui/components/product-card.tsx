@@ -1,8 +1,10 @@
+// TODO: Add real ratings.
+
 import Link from "next/link";
 import Image from "next/image";
 import { StarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { generateTenantUrl } from "@/lib/utils";
+import { formatCurrency, generateTenantUrl } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
@@ -35,7 +37,7 @@ export const ProductCard = ({
   };
 
   return (
-    <Link href={`/products/${id}`}>
+    <Link href={`${generateTenantUrl(tenantSlug)}/products/${id}`}>
       <div className="hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-shadow border rounded-md bg-white overflow-hidden h-full flex flex-col">
         <div className="relative aspect-square">
           <Image
@@ -75,11 +77,12 @@ export const ProductCard = ({
             <p className="text-sm font-medium">
               {/* ${price} */}
               {/* TODO: Dynamic currency format */}
-              {new Intl.NumberFormat("en-US", {
+              {/* {new Intl.NumberFormat("en-US", {
                 style: "currency",
                 currency: "USD",
-                maximumFractionDigits: 1,
-              }).format(Number(price))}
+                maximumFractionDigits: 2,
+              }).format(Number(price))} */}
+              {formatCurrency(price)}
             </p>
           </div>
         </div>
