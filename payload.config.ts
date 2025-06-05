@@ -14,6 +14,7 @@ import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 import path from "path";
 
 import { fileURLToPath } from "url";
+import { Config } from "@payload-types";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -30,7 +31,7 @@ export default buildConfig({
   // cookiePrefix: "funroad",  // optional: if we want to change the cookie prefix
   plugins: [
     payloadCloudPlugin(),
-    multiTenantPlugin({
+    multiTenantPlugin<Config>({
       collections: {
         products: {},
       },
