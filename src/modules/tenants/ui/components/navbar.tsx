@@ -1,10 +1,34 @@
 "use client";
 
 import { generateTenantUrl } from "@/lib/utils";
+
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+
+// import { CheckoutButton } from "@/modules/checkout/ui/components/checkout-button";
+
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { ShoppingCartIcon } from "lucide-react";
+
+// to avoid hydration error, dynamically import CheckoutButton. It won't go through server-side rendering (SSR).
+// add the fallback to prevent the button from disapearing on the client side. (loading state)
+const CheckoutButton = dynamic(
+  () =>
+    import("@/modules/checkout/ui/components/checkout-button.tsx").then(
+      (mod) => mod.CheckoutButton
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <Button className=" bg-white" disabled>
+        <ShoppingCartIcon className="text-black" />
+      </Button>
+    ),
+  }
+);
 
 interface Props {
   slug: string;
@@ -33,6 +57,7 @@ export const Navbar = ({ slug }: Props) => {
           )}
           <p className="text-xl">{data.name}</p>
         </Link>
+        <CheckoutButton tenantSlug={slug} hideIfEmpty />
       </div>
     </nav>
   );
@@ -43,7 +68,10 @@ export const NavbarSkeleton = () => {
     <nav className="h-20 border-b font-medium bg-white">
       <div className="max-w-[var(--breakpoint-xl)] mx-auto flex justify-between items-center h-full px-4 lg:px-12">
         <div />
-        {/* TODO: Skeleton for checkout button */}
+        {/* Skeleton for checkout button */}
+        <Button className=" bg-white" disabled>
+          <ShoppingCartIcon className="text-black" />
+        </Button>
       </div>
     </nav>
   );
