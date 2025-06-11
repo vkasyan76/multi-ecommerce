@@ -9,6 +9,7 @@ import { Categories } from "./src/collections/categories.ts";
 import { Products } from "./src/collections/products.ts";
 import { Tags } from "./src/collections/tags.ts";
 import { Tenants } from "./src/collections/tenants.ts";
+import { Orders } from "@/collections/orders.ts";
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 
 import path from "path";
@@ -27,7 +28,7 @@ export default buildConfig({
     },
   },
   editor: lexicalEditor(),
-  collections: [Users, Media, Categories, Products, Tags, Tenants],
+  collections: [Users, Media, Categories, Products, Tags, Tenants, Orders],
   // cookiePrefix: "funroad",  // optional: if we want to change the cookie prefix
   plugins: [
     payloadCloudPlugin(),
