@@ -36,6 +36,7 @@ export const CheckoutView = ({ tenantSlug }: CheckoutViewProps) => {
       onMutate: () => {
         setStates({ success: false, cancel: false }); // reset states
       },
+      //  from the backend API call you make via TRPC when the user clicks "Checkout."
       onSuccess: (data) => {
         window.location.href = data.url; // success means that checkout link was created. we obtain the link
       },

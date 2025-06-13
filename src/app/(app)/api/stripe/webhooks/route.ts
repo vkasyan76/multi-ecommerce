@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
+    // This ensures the event is genuine and from Stripe:
     event = stripe.webhooks.constructEvent(
       await (await req.blob()).text(),
       req.headers.get("stripe-signature") as string,
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
   // If we pass try-catch block – add success & define permitted events & add payload:
   console.log("✅ Success:", event.id);
 
-  const permittedEvents: string[] = ["checkout.session.completed"];
+  const permittedEvents: string[] = ["checkout.session.completed"]; //array of strings
 
   const payload = await getPayload({ config });
 
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
           const expandedSession = await stripe.checkout.sessions.retrieve(
             data.id,
             {
-              expand: ["line_items.data.price.product"],
+              expand: ["line_items.data.price.product"], // Stripe will return the full product object for every line item, not just the product ID.
             }
           );
 
