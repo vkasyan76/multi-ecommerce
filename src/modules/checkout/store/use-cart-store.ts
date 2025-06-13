@@ -12,12 +12,12 @@ interface CartState {
   removeProduct: (tenantSlug: string, productId: string) => void;
   clearCart: (tenantSlug: string) => void;
   clearAllCarts: () => void;
-  getCartByTenant: (tenantSlug: string) => string[];
+  // getCartByTenant: (tenantSlug: string) => string[];   // we call tenantCarts directly in src\modules\checkout\hooks\use-cart.ts
 }
 
 export const useCartStore = create<CartState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       tenantCarts: {},
       addProduct: (tenantSlug, productId) =>
         set((state) => ({
@@ -48,13 +48,15 @@ export const useCartStore = create<CartState>()(
           tenantCarts: {
             ...state.tenantCarts,
             [tenantSlug]: {
+              // we call tenantCarts directly in src\modules\checkout\hooks\use-cart.ts
               productIds: [],
             },
           },
         })),
       clearAllCarts: () => set({ tenantCarts: {} }),
-      getCartByTenant: (tenantSlug) =>
-        get().tenantCarts[tenantSlug]?.productIds || [],
+      // we call tenantCarts directly in src\modules\checkout\hooks\use-cart.ts - no need for getCartByTenant method
+      // getCartByTenant: (tenantSlug) =>
+      //   get().tenantCarts[tenantSlug]?.productIds || [],
     }),
     // properties how we want to save this card:
     {
