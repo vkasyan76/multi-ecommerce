@@ -1,6 +1,9 @@
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { Category, Media, Tenant } from "@payload-types";
 import type { Sort, Where } from "payload";
+
+import { headers as Headers } from "next/headers";
+
 import { z } from "zod";
 import { sortValues } from "../hooks/search-params";
 import { DEFAULT_LIMIT } from "@/constants";
@@ -13,15 +16,39 @@ export const productsRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      // We check if this user is logged in for checking if he already ordered this product.
+      const headers = await Headers();
+      const session = await ctx.db.auth({ headers });
+
       const product = await ctx.db.findByID({
         collection: "products",
         id: input.id,
         depth: 2, // load "product.image", "product.tenant" and "product.tenant.image"
       });
 
+      let isPurchased = false;
+
+      if (session.user) {
+        const ordersData = await ctx.db.find({
+          collection: "orders",
+          pagination: false,
+          limit: 1,
+          where: {
+            and: [
+              { product: { equals: input.id } }, // check if the product is in the order
+              { user: { equals: session.user.id } }, // check if the user is the one who ordered it
+            ],
+          },
+        });
+        // if we have any orders with this product and user (boolean):
+        // isPurchased = ordersData.docs.length > 0;
+        isPurchased = !!ordersData.docs[0];
+      }
+
       // return product;
       return {
         ...product,
+        isPurchased, // add isPurchased flag
         image: product.image as Media | null, // ensure image is of type Media or null
         tenant: product.tenant as Tenant & { image: Media | null },
       };
