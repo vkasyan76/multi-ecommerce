@@ -20,9 +20,11 @@ export const LibraryView = () => {
         </div>
       </header>
       <section className="max-w-(--breakpoint-xl) mx-auto px-4 lg:px-12 py-10">
-        <Suspense fallback={<ProductCardSkeleton />}>
-          <ProductList />
-        </Suspense>
+        <div className="lg:col-span-4 xl:col-span-6">
+          <Suspense fallback={<ProductCardSkeleton />}>
+            <ProductList />
+          </Suspense>
+        </div>
       </section>
     </div>
   );
