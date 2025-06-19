@@ -28,6 +28,7 @@ export const productsRouter = createTRPCRouter({
 
       let isPurchased = false;
 
+      // check if the current user purchased this product
       if (session.user) {
         const ordersData = await ctx.db.find({
           collection: "orders",
@@ -45,12 +46,60 @@ export const productsRouter = createTRPCRouter({
         isPurchased = !!ordersData.docs[0];
       }
 
+      // REVIEWS:
+      // add reviews data for displaying in the progress bars using id of the product we want to fetch:
+      const reviews = await ctx.db.find({
+        collection: "reviews",
+        pagination: false,
+        where: {
+          product: { equals: input.id },
+        },
+      }); // check if the product is in the review)
+
+      // Calculate the review count and average rating:
+
+      const reviewRating =
+        reviews.docs.length > 0
+          ? reviews.docs.reduce((acc, review) => acc + review.rating, 0) /
+            reviews.totalDocs
+          : 0;
+
+      const ratingDistribution: Record<number, number> = {
+        5: 0,
+        4: 0,
+        3: 0,
+        2: 0,
+        1: 0,
+      };
+
+      // increment the count for each rating in the distribution:
+      if (reviews.totalDocs > 0) {
+        reviews.docs.forEach((review) => {
+          const rating = review.rating;
+          if (rating >= 1 && rating <= 5) {
+            ratingDistribution[rating] = (ratingDistribution[rating] || 0) + 1; // increment the count for the rating
+          }
+        });
+        // convert counts to percentages:
+        Object.keys(ratingDistribution).forEach((key) => {
+          const rating = Number(key);
+          const count = ratingDistribution[rating] || 0; // get the count for the rating.
+          ratingDistribution[rating] = Math.round(
+            (count / reviews.totalDocs) * 100
+          ); // convert to percentage
+        });
+      }
+
       // return product;
       return {
         ...product,
         isPurchased, // add isPurchased flag
         image: product.image as Media | null, // ensure image is of type Media or null
         tenant: product.tenant as Tenant & { image: Media | null },
+        // add reviews data:
+        reviewRating, // average rating
+        reviewCount: reviews.totalDocs, // total number of reviews
+        ratingDistribution, // distribution of ratings
       };
     }),
 
@@ -185,9 +234,37 @@ export const productsRouter = createTRPCRouter({
       // return data;
       // to modify getMany method, so that it properly assigns the type of image.
 
+      // Integrate Reviews in Product View: with promise – we can use async inside map – it will return promises
+
+      const dataWithReviews = await Promise.all(
+        data.docs.map(async (doc) => {
+          // Fetch reviews for each product
+          const reviewsData = await ctx.db.find({
+            collection: "reviews",
+            pagination: false,
+            where: {
+              product: { equals: doc.id },
+            },
+          });
+
+          return {
+            ...doc,
+            reviewCount: reviewsData.totalDocs, // add review count totalDocs is a standard property in the result of a .find()
+            reviewRating:
+              reviewsData.docs.length === 0
+                ? 0 // if no reviews, set rating to 0
+                : reviewsData.docs.reduce(
+                    (acc, review) => acc + review.rating,
+                    0
+                  ) / reviewsData.totalDocs, // calculate average rating
+          };
+        })
+      );
+
       return {
         ...data,
-        docs: data.docs.map((doc) => ({
+        // docs: data.docs.map((doc) => ({
+        docs: dataWithReviews.map((doc) => ({
           ...doc,
           image: doc.image as Media | null, // ensure image is of type Media or null
           tenant: doc.tenant as Tenant & { image: Media | null },
