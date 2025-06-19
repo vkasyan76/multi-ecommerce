@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
-import { ProductList } from "../components/products-list";
+import { ProductList, ProductListSkeleton } from "../components/products-list";
 import { Suspense } from "react";
-import { ProductCardSkeleton } from "../components/product-card";
+// import { ProductCardSkeleton } from "../components/product-card";
 
 export const LibraryView = () => {
   return (
@@ -20,11 +20,10 @@ export const LibraryView = () => {
         </div>
       </header>
       <section className="max-w-(--breakpoint-xl) mx-auto px-4 lg:px-12 py-10">
-        <div className="lg:col-span-4 xl:col-span-6">
-          <Suspense fallback={<ProductCardSkeleton />}>
-            <ProductList />
-          </Suspense>
-        </div>
+        {/* ProductListSkeleton renders a grid of multiple <ProductCardSkeleton /> components. */}
+        <Suspense fallback={<ProductListSkeleton />}>
+          <ProductList />
+        </Suspense>
       </section>
     </div>
   );
