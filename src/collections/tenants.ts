@@ -1,7 +1,12 @@
+import { isSuperAdmin } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 export const Tenants: CollectionConfig = {
   slug: "tenants",
+  access: {
+    create: ({ req }) => isSuperAdmin(req.user), // Users should be able to update their details by default, the rest - not
+    delete: ({ req }) => isSuperAdmin(req.user),
+  },
   admin: {
     useAsTitle: "slug",
   },
@@ -12,7 +17,7 @@ export const Tenants: CollectionConfig = {
       type: "text",
       label: "Store Name",
       admin: {
-        description: "This is the name of the store",
+        description: "This is the name of the store.",
       },
     },
     {
@@ -21,9 +26,12 @@ export const Tenants: CollectionConfig = {
       index: true,
       required: true,
       unique: true,
+      access: {
+        update: ({ req }) => isSuperAdmin(req.user), // Only super-admin can update the subdomain slug
+      },
       admin: {
         description:
-          "This is the subdomain of the store  (e.g. [slug].yourdomain.com)",
+          "This is the subdomain of the store  (e.g. [slug].yourdomain.com.)",
       },
     },
     {
@@ -37,16 +45,23 @@ export const Tenants: CollectionConfig = {
       type: "text",
       required: true,
       admin: {
-        readOnly: true,
+        // readOnly: true,
+        description: "Stripe account ID associated with your shop.",
+      },
+      access: {
+        update: ({ req }) => isSuperAdmin(req.user), // Only super-admin can update this field
       },
     },
     {
       name: "stripeDetailsSubmitted",
       type: "checkbox", // boolean
+      access: {
+        update: ({ req }) => isSuperAdmin(req.user), // Only super-admin can update this field
+      },
       admin: {
-        readOnly: true,
+        // readOnly: true,
         description:
-          "You cannot create products until you submit your stripe details",
+          "You cannot create products until you submit your stripe details.",
       },
     },
   ],

@@ -17,6 +17,7 @@ import path from "path";
 
 import { fileURLToPath } from "url";
 import { Config } from "@payload-types";
+import { isSuperAdmin } from "@/lib/access.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -50,7 +51,8 @@ export default buildConfig({
         includeDefaultField: false,
       },
       userHasAccessToAllTenants: (user) =>
-        Boolean(user?.roles?.includes("super-admin")),
+        // Boolean(user?.roles?.includes("super-admin")),
+        isSuperAdmin(user), // import from "@/lib/access.ts"
     }),
   ],
   secret: process.env.PAYLOAD_SECRET || "",
