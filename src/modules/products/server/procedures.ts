@@ -24,6 +24,9 @@ export const productsRouter = createTRPCRouter({
         collection: "products",
         id: input.id,
         depth: 2, // load "product.image", "product.tenant" and "product.tenant.image"
+        select: {
+          content: false, // it will not leak for the api: Restrict Purchased Content from payload API
+        },
       });
 
       let isPurchased = false;
@@ -224,6 +227,9 @@ export const productsRouter = createTRPCRouter({
         sort,
         page: input.cursor,
         limit: input.limit,
+        select: {
+          content: false,
+        }, // it will not leak for the api: Restrict Purchased Content from payload API
       });
 
       // console.log(JSON.stringify(data.docs, null, 2));

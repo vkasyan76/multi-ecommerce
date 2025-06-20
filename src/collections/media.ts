@@ -1,3 +1,4 @@
+import { isSuperAdmin } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 // original tutorial:
@@ -6,6 +7,10 @@ export const Media: CollectionConfig = {
   slug: "media",
   access: {
     read: () => true,
+    delete: ({ req }) => isSuperAdmin(req.user), // Only super-admin can delete media
+  },
+  admin: {
+    hidden: ({ user }) => !isSuperAdmin(user), // Hide from admin panel if not super-admin
   },
   fields: [
     {

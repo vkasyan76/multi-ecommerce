@@ -1,7 +1,15 @@
+import { isSuperAdmin } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 export const Reviews: CollectionConfig = {
   slug: "reviews",
+  // no need to show reviews in payload dashboard. we have library ui for that
+  access: {
+    read: ({ req }) => isSuperAdmin(req.user),
+    create: ({ req }) => isSuperAdmin(req.user),
+    update: ({ req }) => isSuperAdmin(req.user),
+    delete: ({ req }) => isSuperAdmin(req.user),
+  },
   admin: {
     useAsTitle: "description", // This will enusre that names are shown, not the IDs
   },

@@ -1,7 +1,15 @@
+import { isSuperAdmin } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 export const Orders: CollectionConfig = {
   slug: "orders",
+  // TODO: allow tenants to see own orders: needed add the orders to the multitenantplugin & every time we create an order - wee need to pass associated tenant id
+  access: {
+    read: ({ req }) => isSuperAdmin(req.user),
+    create: ({ req }) => isSuperAdmin(req.user),
+    update: ({ req }) => isSuperAdmin(req.user),
+    delete: ({ req }) => isSuperAdmin(req.user),
+  },
   admin: {
     useAsTitle: "name",
   },
@@ -29,6 +37,9 @@ export const Orders: CollectionConfig = {
       name: "stripeCheckoutSessionId",
       type: "text",
       required: true,
+      admin: {
+        description: "Stripe Checkout Session ID for this order.",
+      },
     },
   ],
 };

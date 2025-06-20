@@ -161,17 +161,20 @@ export interface User {
 export interface Tenant {
   id: string;
   /**
-   * This is the name of the store
+   * This is the name of the store.
    */
   name: string;
   /**
-   * This is the subdomain of the store  (e.g. [slug].yourdomain.com)
+   * This is the subdomain of the store  (e.g. [slug].yourdomain.com.)
    */
   slug: string;
   image?: (string | null) | Media;
+  /**
+   * Stripe account ID associated with your shop.
+   */
   stripeAccountId: string;
   /**
-   * You cannot create products until you submit your stripe details
+   * You cannot create products until you submit your stripe details.
    */
   stripeDetailsSubmitted?: boolean | null;
   updatedAt: string;
@@ -231,6 +234,10 @@ export interface Product {
   tags?: (string | Tag)[] | null;
   image?: (string | null) | Media;
   refundPolicy?: ('30-day' | '14-day' | '7-day' | '3-day' | '1-day' | 'no-refunds') | null;
+  /**
+   * Protected content only visible to customers after purchase. Add product documentation, downloadable files, getting started guides, and bonus materials. Supports Markdown formatting.
+   */
+  content?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -254,6 +261,9 @@ export interface Order {
   name: string;
   user: string | User;
   product: string | Product;
+  /**
+   * Stripe Checkout Session ID for this order.
+   */
   stripeCheckoutSessionId: string;
   updatedAt: string;
   createdAt: string;
@@ -419,6 +429,7 @@ export interface ProductsSelect<T extends boolean = true> {
   tags?: T;
   image?: T;
   refundPolicy?: T;
+  content?: T;
   updatedAt?: T;
   createdAt?: T;
 }
