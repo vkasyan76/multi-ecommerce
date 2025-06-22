@@ -1,4 +1,4 @@
-import { isSuperAdmin } from "@/lib/access";
+import { isSuperAdmin } from "../lib/access.ts";
 import type { CollectionConfig } from "payload";
 
 export const Reviews: CollectionConfig = {

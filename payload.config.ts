@@ -9,15 +9,15 @@ import { Categories } from "./src/collections/categories.ts";
 import { Products } from "./src/collections/products.ts";
 import { Tags } from "./src/collections/tags.ts";
 import { Tenants } from "./src/collections/tenants.ts";
-import { Orders } from "@/collections/orders.ts";
-import { Reviews } from "@/collections/reviews.ts";
+import { Orders } from "./src/collections/orders.ts";
+import { Reviews } from "./src/collections/reviews.ts";
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 
 import path from "path";
 
 import { fileURLToPath } from "url";
 import { Config } from "@payload-types";
-import { isSuperAdmin } from "@/lib/access.ts";
+import { isSuperAdmin } from "./src/lib/access.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -27,6 +27,11 @@ export default buildConfig({
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
+    },
+    components: {
+      // custom components can be added here
+      // beforeNavLinks: ["@/components/stripe-verify#StripeVerify"],
+      beforeNavLinks: ["./src/components/stripe-verify#StripeVerify"],
     },
   },
   editor: lexicalEditor(),
