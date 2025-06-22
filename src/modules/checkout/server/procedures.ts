@@ -11,8 +11,49 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { CheckoutMetadata, ProductMetadata } from "../types";
+import { PLATFORM_FEE_PERCENTAGE } from "@/constants";
 
 export const checkoutRouter = createTRPCRouter({
+  // This procedure is used to verify if the user & create stripe account link
+  verify: protectedProcedure.mutation(async ({ ctx }) => {
+    const user = await ctx.db.findByID({
+      collection: "users",
+      id: ctx.session?.user?.id,
+      depth: 0, // user.tenants[0].tenant is going to be a string (tenant ID)
+    });
+    if (!user) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+    }
+    // we find the tenant via user and obtain stripe account id:
+    const tenantId = user.tenants?.[0]?.tenant as string;
+    const tenant = await ctx.db.findByID({
+      collection: "tenants",
+      id: tenantId,
+    });
+    if (!tenant) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Tenant not found",
+      });
+    }
+    const accountLink = await stripe.accountLinks.create({
+      account: tenant.stripeAccountId,
+      refresh_url: `${process.env.NEXT_PUBLIC_API_URL!}/admin`,
+      return_url: `${process.env.NEXT_PUBLIC_API_URL!}/admin`,
+      type: "account_onboarding",
+    });
+    if (!accountLink.url) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Failed to create verification link",
+      });
+    }
+    return { url: accountLink.url };
+  }),
+
   purchase: protectedProcedure
     .input(
       z.object({
@@ -64,8 +105,14 @@ export const checkoutRouter = createTRPCRouter({
           message: "Tenant not found",
         });
       }
+      // Throw error if stripe details for tenant not submitted:
+      if (!tenant.stripeDetailsSubmitted) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Tenant not allowed to sell products.",
+        });
+      }
 
-      // TODO: Throw error if stripe details not submitted
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
         products.docs.map((product) => ({
           quantity: 1, // assuming that we only sell digital products
@@ -84,19 +131,35 @@ export const checkoutRouter = createTRPCRouter({
           },
         }));
 
-      const checkout = await stripe.checkout.sessions.create({
-        customer_email: ctx.session?.user?.email, // acc. to the spread in protected procedure in src\trpc\init.ts
-        success_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?success=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?cancel=true`,
-        mode: "payment",
-        line_items: lineItems,
-        invoice_creation: {
-          enabled: true, // this will create an invoice for the purchase
+      const totalAmount = products.docs.reduce(
+        (acc, item) => acc + item.price * 100,
+        0
+      ); // total order amount. set acc to 0.
+
+      const platformFeeAmount = Math.round(
+        totalAmount * (PLATFORM_FEE_PERCENTAGE / 100)
+      ); // platform fee (currently 10%)
+
+      const checkout = await stripe.checkout.sessions.create(
+        {
+          customer_email: ctx.session?.user?.email, // acc. to the spread in protected procedure in src\trpc\init.ts
+          success_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?success=true`,
+          cancel_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?cancel=true`,
+          mode: "payment",
+          line_items: lineItems,
+          invoice_creation: {
+            enabled: true, // this will create an invoice for the purchase
+          },
+          metadata: {
+            userId: ctx.session?.user?.id, // user id from the session
+          } as CheckoutMetadata,
+          payment_intent_data: {
+            application_fee_amount: platformFeeAmount, // this is the platform fee that will be charged to the tenant
+          },
         },
-        metadata: {
-          userId: ctx.session?.user?.id, // user id from the session
-        } as CheckoutMetadata,
-      });
+        { stripeAccount: tenant.stripeAccountId }
+      );
+
       if (!checkout.url) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

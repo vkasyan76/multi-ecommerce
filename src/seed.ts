@@ -2,6 +2,7 @@ import "dotenv/config";
 import { getPayload } from "payload";
 // import config from "@payload-config";
 import config from "../payload.config.js";
+import { stripe } from "./lib/stripe.js";
 
 const categories = [
   {
@@ -144,13 +145,18 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const seed = async () => {
   const payload = await getPayload({ config });
 
+  // Create admin Stripe account:
+
+  const adminAccount = await stripe.accounts.create({});
+
   // Create admin tenant:
   const adminTenant = await payload.create({
     collection: "tenants",
     data: {
       name: "admin",
       slug: "admin",
-      stripeAccountId: "admin",
+      // stripeAccountId: "admin",
+      stripeAccountId: adminAccount.id, // store the stripe account id
     },
   });
 

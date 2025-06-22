@@ -1,4 +1,4 @@
-import { isSuperAdmin } from "@/lib/access";
+import { isSuperAdmin } from "../lib/access.ts";
 import { Tenant } from "@payload-types";
 import type { CollectionConfig } from "payload";
 
@@ -14,6 +14,7 @@ export const Products: CollectionConfig = {
   },
   admin: {
     useAsTitle: "name",
+    description: "You must verify your account before creating products.",
   },
   fields: [
     {

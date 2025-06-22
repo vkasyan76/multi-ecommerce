@@ -1,4 +1,4 @@
-import { isSuperAdmin } from "@/lib/access";
+import { isSuperAdmin } from "../lib/access.ts";
 import type { CollectionConfig } from "payload";
 
 export const Orders: CollectionConfig = {
@@ -39,6 +39,13 @@ export const Orders: CollectionConfig = {
       required: true,
       admin: {
         description: "Stripe Checkout Session ID for this order.",
+      },
+    },
+    {
+      name: "stripeAccountId",
+      type: "text",
+      admin: {
+        description: "Stripe Account ID associated with this order.",
       },
     },
   ],
