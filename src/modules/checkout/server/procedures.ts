@@ -77,6 +77,12 @@ export const checkoutRouter = createTRPCRouter({
                 equals: input.tenantSlug,
               },
             },
+            // filter out archived products -- will show product not found on clicking checkout button
+            {
+              isArchived: {
+                not_equals: true,
+              },
+            },
           ],
         },
       });
@@ -182,9 +188,19 @@ export const checkoutRouter = createTRPCRouter({
         collection: "products",
         depth: 2,
         where: {
-          id: {
-            in: input.ids,
-          },
+          and: [
+            {
+              id: {
+                in: input.ids,
+              },
+            },
+            // filter out archived products:
+            {
+              isArchived: {
+                not_equals: true,
+              },
+            },
+          ],
         },
       });
 

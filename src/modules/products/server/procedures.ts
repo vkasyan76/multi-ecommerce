@@ -7,6 +7,7 @@ import { headers as Headers } from "next/headers";
 import { z } from "zod";
 import { sortValues } from "../hooks/search-params";
 import { DEFAULT_LIMIT } from "@/constants";
+import { TRPCError } from "@trpc/server";
 
 export const productsRouter = createTRPCRouter({
   getOne: baseProcedure
@@ -28,6 +29,13 @@ export const productsRouter = createTRPCRouter({
           content: false, // it will not leak for the api: Restrict Purchased Content from payload API
         },
       });
+
+      if (product.isArchived) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Product not found or has been archived.",
+        });
+      }
 
       let isPurchased = false;
 
@@ -120,8 +128,12 @@ export const productsRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      // prepare a "where" object (by default empty):
-      const where: Where = {};
+      // prepare a "where" object (by default empty) | populate it with isArchived filter.:
+      const where: Where = {
+        isArchived: {
+          not_equals: true, // Reverse explicit logic
+        },
+      };
 
       let sort: Sort = "-createdAt"; // default sort by createdAt DESC newest created
 
@@ -154,9 +166,18 @@ export const productsRouter = createTRPCRouter({
         where.price = { less_than_equal: input.maxPrice };
       }
 
+      // the products will be shown in the tennat store if input.tenant is passed and in the markt space regardless if it is passed or not. But in the market place (where input.tenant is not passed) it will not be shown if marked private:
+
       if (input.tenantSlug) {
         where["tenant.slug"] = {
           equals: input.tenantSlug,
+        };
+      } else {
+        // If we are loading products for public storefront (no tenantSlug)
+        // Make sure to not load products set to "isPrivate: true" (using reverse not_equals logic)
+        // These products are exclusively private to the tenant store
+        where["isPrivate"] = {
+          not_equals: true,
         };
       }
 
