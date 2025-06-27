@@ -35,7 +35,17 @@ export const Users: CollectionConfig = {
     useAsTitle: "email",
     hidden: ({ user }) => !isSuperAdmin(user), // hide from admin panel if not super-admin
   },
-  auth: true,
+  // auth: true,
+  // In production, the custom auth.cookies config ensures that authentication cookies work correctly across subdomains, allowing loging out.
+  auth: {
+    cookies: {
+      ...(process.env.NODE_ENV !== "development" && {
+        sameSite: "None",
+        domain: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+        secure: true,
+      }),
+    },
+  },
   fields: [
     // Email added by default
     // Add more fields as needed

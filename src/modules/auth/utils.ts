@@ -12,10 +12,12 @@ export const generateAuthCookie = async ({ prefix, value }: Props) => {
     value: value,
     httpOnly: true,
     path: "/",
-    // TODO: ensure cross-domain coookie sharing
-    // sameSite: "none",
-    // domain: ""
-    // "funroad.com" // initial cookie
-    // antonio.funroad.com // cookie does not exist here
+    // ensure cross-domain coookie sharing -- see cookies fix in Chapter 31: only in production
+    // This enables cookie auth on local host but it will not work on subdomains turned on
+    ...(process.env.NODE_ENV !== "development" && {
+      sameSite: "none",
+      domain: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+      secure: true,
+    }),
   });
 };
