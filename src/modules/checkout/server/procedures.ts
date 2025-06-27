@@ -12,6 +12,7 @@ import { z } from "zod";
 
 import { CheckoutMetadata, ProductMetadata } from "../types";
 import { PLATFORM_FEE_PERCENTAGE } from "@/constants";
+import { generateTenantUrl } from "@/lib/utils";
 
 export const checkoutRouter = createTRPCRouter({
   // This procedure is used to verify if the user & create stripe account link
@@ -41,8 +42,8 @@ export const checkoutRouter = createTRPCRouter({
     }
     const accountLink = await stripe.accountLinks.create({
       account: tenant.stripeAccountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_API_URL!}/admin`,
-      return_url: `${process.env.NEXT_PUBLIC_API_URL!}/admin`,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL!}/admin`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL!}/admin`,
       type: "account_onboarding",
     });
     if (!accountLink.url) {
@@ -146,11 +147,26 @@ export const checkoutRouter = createTRPCRouter({
         totalAmount * (PLATFORM_FEE_PERCENTAGE / 100)
       ); // platform fee (currently 10%)
 
+      // Implement subdoainm re-write logic:
+
+      // let domain;
+      // if (process.env.NODE_ENV === "development") {
+      //   domain = `${process.env.NEXT_PUBLIC_URL}/tenants/${input.tenantSlug}`; // for local development
+      // } else {
+      //   domain = `${input.tenantSlug}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`; // for production
+      // }
+
+      // Even better:
+      const domain = generateTenantUrl(input.tenantSlug);
+
       const checkout = await stripe.checkout.sessions.create(
         {
           customer_email: ctx.session?.user?.email, // acc. to the spread in protected procedure in src\trpc\init.ts
-          success_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?success=true`,
-          cancel_url: `${process.env.NEXT_PUBLIC_API_URL}/tenants/${input.tenantSlug}/checkout?cancel=true`,
+          // success_url: `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${input.tenantSlug}/checkout?success=true`,
+          // cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${input.tenantSlug}/checkout?cancel=true`,
+          // subdoainm re-write:
+          success_url: `${domain}/checkout?success=true`,
+          cancel_url: `${domain}/checkout?cancel=true`,
           mode: "payment",
           line_items: lineItems,
           invoice_creation: {
