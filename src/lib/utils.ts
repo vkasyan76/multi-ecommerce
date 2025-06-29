@@ -22,30 +22,49 @@ export function cn(...inputs: ClassValue[]) {
 //   return `${protocol}://${tenantSlug}.${domain}`;
 // }
 
-// automatic rewrite in development & production
+// automatic rewrite in development & production:
+// export function generateTenantUrl(tenantSlug: string) {
+//   // return `/tenants/${tenantSlug}`;
+//   // return `/${tenantSlug}`;
+
+//   // Rewrite subdomains:
+//   // if (process.env.NODE_ENV === "development") {
+//   //   return `/tenants/${tenantSlug}`;
+//   // }
+
+//   // if (process.env.NODE_ENV === "development") {
+//   //   return `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${tenantSlug}`;
+//   // }
+
+//   let protocol = "https";
+
+//   // const protocol = "https";
+//   const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN!;
+
+//   if (process.env.NODE_ENV === "development") {
+//     protocol = "http";
+//   }
+
+//   // we render tenant slug and then domain:
+//   return `${protocol}://${tenantSlug}.${domain}`;
+// }
+
+// automatic rewrite in development & production & Disable subdomain routing with env key:
+
 export function generateTenantUrl(tenantSlug: string) {
-  // return `/tenants/${tenantSlug}`;
-  // return `/${tenantSlug}`;
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const isSubdomainRoutingEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_SUBDOMAIN_ROUTING === "true"; // Set it to “true” env variables can only be strings
 
-  // Rewrite subdomains:
-  // if (process.env.NODE_ENV === "development") {
-  //   return `/tenants/${tenantSlug}`;
-  // }
-
-  // if (process.env.NODE_ENV === "development") {
-  //   return `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${tenantSlug}`;
-  // }
-
-  let protocol = "https";
-
-  // const protocol = "https";
-  const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN!;
-
-  if (process.env.NODE_ENV === "development") {
-    protocol = "http";
+  // In development or subdomain routing disabled mode, use normal routing
+  if (isDevelopment || !isSubdomainRoutingEnabled) {
+    return `${process.env.NEXT_PUBLIC_APP_URL}/tenants/${tenantSlug}`;
   }
 
-  // we render tenant slug and then domain:
+  const protocol = "https";
+  const domain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+
+  // In production, use subdomain routing
   return `${protocol}://${tenantSlug}.${domain}`;
 }
 

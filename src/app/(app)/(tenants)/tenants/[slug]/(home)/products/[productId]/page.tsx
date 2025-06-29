@@ -6,6 +6,9 @@ import {
 } from "@/modules/products/ui/components/views/product-view";
 import { Suspense } from "react";
 
+// pre-deployment: server-side rendering
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ productId: string; slug: string }>;
 }

@@ -5,6 +5,9 @@ import { SearchParams } from "nuqs/server";
 import { loadProductFilters } from "@/modules/products/hooks/search-params";
 import { DEFAULT_LIMIT } from "@/constants";
 
+// pre-deployment: server-side rendering
+export const dynamic = "force-dynamic";
+
 interface Props {
   // Next.js asynchronously provides params
   params: Promise<{ subcategory: string }>;
