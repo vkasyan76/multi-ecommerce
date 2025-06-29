@@ -6,6 +6,9 @@ import { loadProductFilters } from "@/modules/products/hooks/search-params";
 import { DEFAULT_LIMIT } from "@/constants";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
+// pre-deployment: server-side rendering
+export const dynamic = "force-dynamic";
+
 interface Props {
   // Next.js asynchronously provides params
   params: Promise<{ slug: string }>;

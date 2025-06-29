@@ -4,6 +4,10 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, trpc } from "@/trpc/server";
 import { ProductListView } from "@/modules/products/ui/components/views/product-list-view";
 import { DEFAULT_LIMIT } from "@/constants";
+
+// pre-deployment: server-side rendering
+export const dynamic = "force-dynamic";
+
 interface Props {
   // Next.js asynchronously provides params
   params: Promise<{ category: string }>;
