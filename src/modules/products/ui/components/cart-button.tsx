@@ -19,7 +19,9 @@ export const CartButton = ({ tenantSlug, productId, isPurchased }: Props) => {
         asChild
         className="flex-1 font-medium bg-white"
       >
-        <Link prefetch href={`/library/${productId}`}>
+        {/* <Link prefetch href={`/library/${productId}`}> */}
+        {/* to ensure domain redirect in production */}
+        <Link prefetch href={`${process.env.NEXT_PUBLIC_APP_URL}/${productId}`}>
           View in Library
         </Link>
       </Button>

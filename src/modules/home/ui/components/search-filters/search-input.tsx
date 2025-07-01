@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { BookmarkCheckIcon, ListFilterIcon, SearchIcon } from "lucide-react";
 // import { CustomCategory } from "../types";
 import { CategoriesSidebar } from "./categories-sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
@@ -13,13 +13,23 @@ import Link from "next/link";
 interface Props {
   disabled?: boolean;
   // data: CustomCategory[];
+  defaultValue?: string | undefined;
+  onChange?: (value: string) => void;
 }
 
-export const SearchInput = ({ disabled }: Props) => {
+export const SearchInput = ({ disabled, defaultValue, onChange }: Props) => {
+  const [searchValue, setSearchValue] = useState(defaultValue || "");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const trpc = useTRPC();
   const session = useQuery(trpc.auth.session.queryOptions());
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange?.(searchValue); // eqzuivalent to `if (onChange) onChange(searchValue);`
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [searchValue, onChange]);
 
   return (
     <div className="flex items-center gap-2 w-full">
@@ -34,6 +44,14 @@ export const SearchInput = ({ disabled }: Props) => {
           className="pl-8"
           placeholder="Search products"
           disabled={disabled}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)} // if we use useEffect with debounce
+          // onChange={(e) => {
+          //   setSearchValue(e.target.value);
+          //   if (onChange) {
+          //     onChange(e.target.value); // If a parent component passes an onChange function to SearchInput, this line will call it and pass the new value up.
+          //   }
+          // }}
         />
       </div>
       {/* categories view all button */}

@@ -8,6 +8,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { DEFAULT_BG_COLOR } from "../../../constants";
 import { BreadcrumbNavigation } from "./breadcrumbs-navigation";
+import { useProductFilters } from "@/modules/products/hooks/use-product-filters";
 
 // interface Props {
 //   data: CustomCategory[];
@@ -16,6 +17,7 @@ import { BreadcrumbNavigation } from "./breadcrumbs-navigation";
 export const SearchFilters = () => {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.categories.getMany.queryOptions());
+  const [filters, setFilters] = useProductFilters(); // use it for search params
 
   const params = useParams();
 
@@ -42,7 +44,10 @@ export const SearchFilters = () => {
       style={{ backgroundColor: activeCategoryColor }}
     >
       {/* Pass data to Search Input for showing the categoriesSidebar  */}
-      <SearchInput />
+      <SearchInput
+        defaultValue={filters.search}
+        onChange={(value) => setFilters({ search: value })}
+      />
       {/* Hide Categories on Mobile */}
       <div className="hidden lg:block">
         <Categories data={data} />
