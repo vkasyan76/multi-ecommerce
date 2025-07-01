@@ -52,6 +52,7 @@ export default buildConfig({
     multiTenantPlugin<Config>({
       collections: {
         products: {},
+        media: {}, // private media accessable only to the tenant
       },
       tenantsArrayField: {
         includeDefaultField: false,
